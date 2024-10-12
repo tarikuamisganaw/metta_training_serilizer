@@ -28,23 +28,53 @@ try:
 except Exception as e:
     print(f"An error occurred: {e}")
 
-# 2 Points
 def get_transcript(node):
-     #TODO Implement the logic to fetch the transcript
-    transcript = metta.run()
-    return transcript     
+    #TODO Implement the logic to fetch the transcript
+    transcript = metta.run(f'''
+            !(match &space (transcribed_to ({node[0]}) $mathcednode) (transcribed_to ({node[0]}) $mathcednode))
+        ''') 
+    return transcript    
 
 #2 Points
 def get_protein(node):
     #TODO Implement the logic to fetch the protein
-    protein = metta.run() 
+    protein = metta.run(f'''!(match &space 
+        (transcribed_to ({node[0]}) $mathcednode) 
+        (match &space (translates_to $mathcednode $node2)(translates_to $mathcednode $node2)))''')
     return protein
+
 
 #6 Points
 def metta_seralizer(metta_result):
-    #TODO Implement logic to convert the Metta output into a structured format  (e.g., a list of dictionaries) that can be easily serialized to JSON.
-    return result
+    result = []
+    
+    def parser(atoms):
+        return " ".join(atom.get_name() for atom in atoms.get_children() if isinstance(atom, SymbolAtom))
 
+    tracker= {1: "source", 2: "target"}
+    
+    for item in metta_result[0]:
+        dicter = {}
+        for atom in item.get_children():
+            if isinstance(atom, ExpressionAtom):
+                key = tracker.get(item.get_children().index(atom))
+                dicter[key] = parser(atom)
+            elif isinstance(atom, SymbolAtom):
+                dicter['edge'] = atom.get_name()
+        
+        if dicter:
+            result.append(dicter)
+    
+    return result
+    
+   
+
+
+    
+
+
+
+    
 
 
 #1
