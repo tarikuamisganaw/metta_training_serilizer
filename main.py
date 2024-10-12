@@ -47,34 +47,31 @@ def get_protein(node):
 #6 Points
 def metta_seralizer(metta_result):
     result = []
-    
-    def parser(atoms):
-        return " ".join(atom.get_name() for atom in atoms.get_children() if isinstance(atom, SymbolAtom))
 
-    tracker= {1: "source", 2: "target"}
-    
+    def parse_expression(atom):
+        symbol_names = []
+        for child in atom.get_children():
+            if isinstance(child, SymbolAtom):
+                symbol_names.append(child.get_name())
+        return " ".join(symbol_names)
+
     for item in metta_result[0]:
         dicter = {}
+        position = 1
         for atom in item.get_children():
             if isinstance(atom, ExpressionAtom):
-                key = tracker.get(item.get_children().index(atom))
-                dicter[key] = parser(atom)
+                key = "source" if position == 1 else "target"
+                dicter[key] = parse_expression(atom)
+                position += 1
             elif isinstance(atom, SymbolAtom):
                 dicter['edge'] = atom.get_name()
-        
+
         if dicter:
             result.append(dicter)
-    
+
     return result
     
    
-
-
-    
-
-
-
-    
 
 
 #1
